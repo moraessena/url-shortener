@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: url-shortener
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/url_shortener
+server:
+  servlet:
+    context-path: /api
