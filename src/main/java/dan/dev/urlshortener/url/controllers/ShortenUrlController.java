@@ -2,10 +2,17 @@ package dan.dev.urlshortener.url.controllers;
 
 import dan.dev.urlshortener.url.controllers.dtos.ShortenUrlRequestDTO;
 import dan.dev.urlshortener.url.controllers.dtos.ShortenUrlResponseDTO;
+import dan.dev.urlshortener.url.models.ShortenUrl;
 import dan.dev.urlshortener.url.services.ShortenUrlService;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.MOVED_PERMANENTLY;
 
 @RestController
 @RequestMapping("/v1/shorten")
@@ -24,4 +31,12 @@ public class ShortenUrlController {
         return new ShortenUrlResponseDTO(shortenUrl.getUrl(), shortenUrl.getCode());
     }
 
+
+    @GetMapping("/{code}")
+    public ResponseEntity<Void> access(@PathVariable String code) throws URISyntaxException {
+        ShortenUrl shortenUrl = shortenUrlService.accessUrl(code);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(new URI(shortenUrl.getUrl()));
+        return new ResponseEntity<>(headers, MOVED_PERMANENTLY);
+    }
 }

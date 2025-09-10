@@ -1,5 +1,6 @@
 package dan.dev.urlshortener.url.services;
 
+import dan.dev.urlshortener.url.exceptions.ShortenUrlNotFoundException;
 import dan.dev.urlshortener.url.models.ShortenUrl;
 import dan.dev.urlshortener.url.repositories.ShortenUrlRepository;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,10 @@ public class ShortenUrlService {
             ShortenUrl shortenUrl = new ShortenUrl.ShortenUrlBuilder().code(code).url(url).createdAt(now()).build();
             return shortenUrlRepository.save(shortenUrl);
         });
+    }
+
+    public ShortenUrl accessUrl(String code) {
+        return shortenUrlRepository.findFirstByCode(code).orElseThrow(() -> new ShortenUrlNotFoundException("url not found"));
     }
 
 }
