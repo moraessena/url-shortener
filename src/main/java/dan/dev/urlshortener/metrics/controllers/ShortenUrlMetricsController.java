@@ -1,8 +1,6 @@
 package dan.dev.urlshortener.metrics.controllers;
 
-import dan.dev.urlshortener.metrics.repositories.projections.DailyMetrics;
 import dan.dev.urlshortener.metrics.repositories.projections.HourlyMetrics;
-import dan.dev.urlshortener.metrics.repositories.projections.TopUrlMetrics;
 import dan.dev.urlshortener.metrics.services.ShortenUrlMetricsService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,9 +18,11 @@ public class ShortenUrlMetricsController {
     }
 
     @GetMapping("/{code}/daily")
-    public ResponseEntity<List<DailyMetrics>> getDailyMetrics(
+    public ResponseEntity<?> getDailyMetrics(
             @PathVariable String code,
             @RequestParam(defaultValue = "30") int days) {
+        if (days > 60)
+            return ResponseEntity.badRequest().body("days cannot be more than 60");
         return ResponseEntity.ok(shortenUrlMetricsService.getDailyMetrics(code, days));
     }
 
@@ -32,8 +32,10 @@ public class ShortenUrlMetricsController {
     }
 
     @GetMapping("/top")
-    public ResponseEntity<List<TopUrlMetrics>> getTopUrls(
+    public ResponseEntity<?> getTopUrls(
             @RequestParam(defaultValue = "10") int limit) {
+        if (limit > 100)
+            return ResponseEntity.badRequest().body("limit cannot be more than 100");
         return ResponseEntity.ok(shortenUrlMetricsService.getTopUrls(limit));
     }
 }
