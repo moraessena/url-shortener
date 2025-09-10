@@ -10,6 +10,7 @@ import static java.time.LocalDateTime.now;
 public class ShortenUrlService {
 
     private final ShortenUrlRepository shortenUrlRepository;
+    // TODO("refactor to interface")
     private final Base62UrlShortener urlShortener;
 
     public ShortenUrlService(ShortenUrlRepository shortenUrlRepository, Base62UrlShortener urlShortener) {
