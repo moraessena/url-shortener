@@ -28,6 +28,8 @@ class ShortenUrlMetricsCustomRepositoryImpl implements ShortenUrlMetricsCustomRe
         LocalDateTime endDate = LocalDateTime.now();
         LocalDateTime startDate = endDate.minusDays(days);
 
+        DateOperators.DateToString dateToString = DateOperators.DateToString.dateToString("$timestamp").toString("%Y-%m-%d");
+
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.match(Criteria
                         .where("_id").is(code)
@@ -35,12 +37,12 @@ class ShortenUrlMetricsCustomRepositoryImpl implements ShortenUrlMetricsCustomRe
                 ),
                 Aggregation.project()
                         .and("_id").as("shortCode")
-                        .and("timestamp").as("date")
+                        .and(dateToString).as("date")
                         .and("access").as("access"),
                 Aggregation.group("date")
                         .sum("access").as("totalClicks")
                         .first("date").as("date"),
-                Aggregation.sort(Sort.Direction.ASC, "_id")
+                Aggregation.sort(Sort.Direction.DESC, "_id")
         );
 
         return mongoTemplate.aggregate(aggregation, "shorten_url_ts", DailyMetrics.class)
@@ -52,6 +54,8 @@ class ShortenUrlMetricsCustomRepositoryImpl implements ShortenUrlMetricsCustomRe
         LocalDateTime endDate = LocalDateTime.now();
         LocalDateTime startDate = endDate.minusHours(24);
 
+        DateOperators.DateToString dateToString = DateOperators.DateToString.dateToString("$timestamp").toString("%Y-%m-%d");
+
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.match(Criteria
                         .where("_id").is(code)
@@ -60,13 +64,13 @@ class ShortenUrlMetricsCustomRepositoryImpl implements ShortenUrlMetricsCustomRe
                 Aggregation.project()
                         .and("_id").as("shortCode")
                         .and(DateOperators.Hour.hour("$timestamp")).as("hour")
-                        .and("timestamp").as("date")
+                        .and(dateToString).as("date")
                         .and("access").as("access"),
                 Aggregation.group(Fields.fields("date", "hour"))
                         .sum("access").as("totalClicks")
                         .first("date").as("date")
                         .first("hour").as("hour"),
-                Aggregation.sort(Sort.Direction.ASC, "_id")
+                Aggregation.sort(Sort.Direction.DESC, "_id")
         );
 
         return mongoTemplate.aggregate(aggregation, "shorten_url_ts", HourlyMetrics.class)
