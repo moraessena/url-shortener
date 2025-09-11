@@ -4,6 +4,7 @@ import dan.dev.urlshortener.url.events.ShortenUrlAccessedEvent;
 import dan.dev.urlshortener.url.exceptions.ShortenUrlNotFoundException;
 import dan.dev.urlshortener.url.models.ShortenUrl;
 import dan.dev.urlshortener.url.repositories.ShortenUrlRepository;
+import dan.dev.urlshortener.url.services.algorithm.ShortenService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -14,19 +15,18 @@ public class ShortenUrlService {
 
     private final ApplicationEventPublisher applicationEventPublisher;
     private final ShortenUrlRepository shortenUrlRepository;
-    // TODO("refactor to interface")
-    private final Base62UrlShortener urlShortener;
+    private final ShortenService shortenService;
 
     public ShortenUrlService(ApplicationEventPublisher applicationEventPublisher,
                              ShortenUrlRepository shortenUrlRepository,
-                             Base62UrlShortener urlShortener) {
+                             ShortenService shortenService) {
         this.applicationEventPublisher = applicationEventPublisher;
         this.shortenUrlRepository = shortenUrlRepository;
-        this.urlShortener = urlShortener;
+        this.shortenService = shortenService;
     }
 
     public ShortenUrl shortUrl(String url) {
-        String code = urlShortener.shortUrl(url);
+        String code = shortenService.shorten(url);
         return shortenUrlRepository.findFirstByCode(code).orElseGet(() -> {
             ShortenUrl shortenUrl = new ShortenUrl.ShortenUrlBuilder().code(code).url(url).createdAt(now()).build();
             return shortenUrlRepository.save(shortenUrl);
